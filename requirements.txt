@@ -1,0 +1,7 @@
+aiogram~=3.18.0
+motor
+aiohttp
+requests
+boto3==1.35.99
+gitpython
+yandex-cloud-ml-sdk

@@ -13,6 +13,32 @@ from utils.funcs import check_admin
 from services.voice_recognition_service import recognize_audio
 
 
+async def process_message_text(text: str, message: types.Message):
+    text_meta = await get_task_meta(text)
+    if text_meta:
+        meta_dict_list = json.loads(text_meta)
+        for meta_dict in meta_dict_list:
+            if meta_dict["action"] == "save_note":
+                add_note(meta_dict["parameters"]["note_text"])
+                await message.answer("Заметка добавлена")
+            elif meta_dict["action"] == "general_question":
+                result = meta_dict["parameters"]["response"]
+                await message.answer("Ответ: " + result)
+
+
+@dp.message(F.text)
+async def handle_text_message(message: types.Message):
+    if not check_admin(message.from_user.id):
+        return
+    try:
+        await process_message_text(message.text, message)
+
+    except Exception as e:
+        logging.error(e)
+        print(e)
+        await message.reply(f"Произошла ошибка: {str(e)}")
+
+
 @dp.message(F.voice)
 async def handle_voice_message(message: types.Message):
     if not check_admin(message.from_user.id):
@@ -27,17 +53,7 @@ async def handle_voice_message(message: types.Message):
 
     try:
         audio_text = await recognize_audio(downloaded_file)
-        text_meta = await get_task_meta(audio_text)
-        print(text_meta)
-        if text_meta:
-            meta_dict_list = json.loads(text_meta)
-            for meta_dict in meta_dict_list:
-                if meta_dict["action"] == "save_note":
-                    add_note(meta_dict["parameters"]["note_text"])
-                    await message.answer("Заметка добавлена")
-                elif meta_dict["action"] == "general_question":
-                    result = meta_dict["parameters"]["response"]
-                    await message.answer("Ответ: " + result)
+        await process_message_text(audio_text, message)
 
     except Exception as e:
         logging.error(e)

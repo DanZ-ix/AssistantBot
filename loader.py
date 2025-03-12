@@ -8,7 +8,7 @@ from yandex_cloud_ml_sdk import AsyncYCloudML
 from configs import (bot_token, yandex_api_token, yandex_api_key_id, github_token,
                      yandex_api_static_key_id, yandex_api_static_key,
                      yandex_gpt_folder_id)
-
+from utils.json_schemas import yandex_gpt_response_schema
 
 admin_list = ["154134326"]
 

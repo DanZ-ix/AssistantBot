@@ -30,13 +30,14 @@ async def handle_voice_message(message: types.Message):
         text_meta = await get_task_meta(audio_text)
         print(text_meta)
         if text_meta:
-            meta_dict = json.loads(text_meta)
-            if meta_dict["action"] == "save_note":
-                add_note(meta_dict["parameters"]["note_text"])
-                await message.answer("Заметка добавлена")
-            elif meta_dict["action"] == "general_question":
-                result = meta_dict["parameters"]["response"]
-                await message.answer("Ответ: " + result)
+            meta_dict_list = json.loads(text_meta)
+            for meta_dict in meta_dict_list:
+                if meta_dict["action"] == "save_note":
+                    add_note(meta_dict["parameters"]["note_text"])
+                    await message.answer("Заметка добавлена")
+                elif meta_dict["action"] == "general_question":
+                    result = meta_dict["parameters"]["response"]
+                    await message.answer("Ответ: " + result)
 
     except Exception as e:
         logging.error(e)

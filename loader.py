@@ -24,8 +24,8 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s %(name
 logging.getLogger('aiohttp').setLevel(logging.INFO)
 
 sdk = AsyncYCloudML(folder_id=yandex_gpt_folder_id, auth=yandex_api_token)
-yandex_gpt = sdk.models.completions('yandexgpt-lite')
-yandex_gpt = yandex_gpt.configure(temperature=0.8, max_tokens=500)
+yandex_gpt = sdk.models.completions('yandexgpt', model_version="rc")
+yandex_gpt = yandex_gpt.configure(temperature=0.1, max_tokens=800)
 
 
 bot = Bot(token=bot_token)

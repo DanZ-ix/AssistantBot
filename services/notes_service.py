@@ -44,7 +44,7 @@ def append_to_inbox_and_push(text_to_append: str, commit_message: str, github_to
 
         # Добавляем текст в конец файла inbox.md
         with open(inbox_file_path, 'a', encoding='utf-8') as file:
-            file.write("\n" + text_to_append)
+            file.write("\n\n\n" + text_to_append)
 
         repo.git.add(all=True)
 

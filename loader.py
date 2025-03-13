@@ -1,5 +1,6 @@
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from motor.motor_asyncio import AsyncIOMotorClient
 
 import logging
 import boto3
@@ -26,6 +27,20 @@ logging.getLogger('aiohttp').setLevel(logging.INFO)
 sdk = AsyncYCloudML(folder_id=yandex_gpt_folder_id, auth=yandex_api_token)
 yandex_gpt = sdk.models.completions('yandexgpt', model_version="rc")
 yandex_gpt = yandex_gpt.configure(temperature=0.1, max_tokens=800)
+
+
+MONGO_URI = "mongodb://localhost:27017"  # Замените на ваш URI
+DB_NAME = "assistant_bot"  # Имя базы данных
+
+# Создание клиента MongoDB
+client = AsyncIOMotorClient(MONGO_URI)
+
+# Выбор базы данных
+db = client[DB_NAME]
+
+# Пример коллекции (таблицы) для хранения данных пользователей
+buy_list = db["buy_list"]
+
 
 
 bot = Bot(token=bot_token)

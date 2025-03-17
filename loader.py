@@ -42,6 +42,5 @@ db = client[DB_NAME]
 buy_list = db["buy_list"]
 
 
-
 bot = Bot(token=bot_token)
 dp = Dispatcher(storage=MemoryStorage())

@@ -10,32 +10,17 @@ from loader import dp, bot, yandex_api_token, buy_list
 from services.gpt_service import get_task_meta, send_query
 from services.goods_service import get_goods_list, get_goods_list_str
 from services.notes_service import add_note
+from utils.gpt_functions import process_gpt_results
 from utils.states import States
 from utils.funcs import check_admin
 from services.voice_recognition_service import recognize_audio
 
 
-async def process_message_text(text: str, message: types.Message):
+async def process_message_text(text: str) -> str:
     text_meta = await get_task_meta(text)
     if text_meta:
         meta_dict_list = json.loads(text_meta)
-        adding_buy_list = []
-
-        for meta_dict in meta_dict_list:
-            if meta_dict["action"] == "save_note":
-                add_note(meta_dict["parameters"]["note_text"])
-                await message.answer("Заметка добавлена")
-            elif meta_dict["action"] == "general_question":
-                result = meta_dict["parameters"]["response"]
-                await message.answer("Ответ: " + result)
-            elif meta_dict["action"] == "add_good_to_list":
-                query = meta_dict["parameters"]["insert_query"]
-                await buy_list.insert_one(query)
-                adding_buy_list.append(query["good"])
-            elif meta_dict["action"] == "get_buy_list":
-                await message.answer("Список покупок: " + await get_goods_list_str())
-        if len(adding_buy_list) > 0:
-            await message.answer("Добавлены покупки: " + await get_goods_list_str())
+        return await process_gpt_results(meta_dict_list)
 
 
 @dp.message(Command("buy_list"))
@@ -55,7 +40,7 @@ async def handle_text_message(message: types.Message):
     if message.text.startswith("/"):
         return
     try:
-        await process_message_text(message.text, message)
+        await message.answer(await process_message_text(message.text))
     except Exception as e:
         logging.error(e)
         print(e)
@@ -68,7 +53,6 @@ async def handle_voice_message(message: types.Message):
         return
 
     voice = message.voice
-
     file_id = voice.file_id
     file = await bot.get_file(file_id)
     file_path = file.file_path
@@ -76,7 +60,7 @@ async def handle_voice_message(message: types.Message):
 
     try:
         audio_text = await recognize_audio(downloaded_file)
-        await process_message_text(audio_text, message)
+        await message.answer(await process_message_text(audio_text))
     except Exception as e:
         logging.error(e)
         print(e)

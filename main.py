@@ -2,7 +2,6 @@
 from aiogram import types
 from handlers import dp
 import asyncio
-from services.notes_service import add_note
 
 
 async def set_commands(bot):

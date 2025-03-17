@@ -1,4 +1,4 @@
-from loader import yandex_gpt, logging
+from loader import yandex_gpt
 
 system_get_meta_prompt = '''
 Ты — помощник для анализа запросов пользователя на естественном языке. Твоя задача — определить, что хочет пользователь, и вернуть результат в формате массива JSON.

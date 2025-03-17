@@ -1,15 +1,13 @@
 import json
 import logging
-import asyncio
-import requests
+
 
 from aiogram import types, F
 from aiogram.filters import Command
 
-from loader import dp, bot, yandex_api_token, buy_list
-from services.gpt_service import get_task_meta, send_query
-from services.goods_service import get_goods_list, get_goods_list_str
-from services.notes_service import add_note
+from loader import dp, bot
+from services.gpt_service import get_task_meta
+from services.goods_service import get_goods_list_str
 from utils.gpt_functions import process_gpt_results
 from utils.states import States
 from utils.funcs import check_admin

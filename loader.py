@@ -40,7 +40,7 @@ db = client[DB_NAME]
 
 # Пример коллекции (таблицы) для хранения данных пользователей
 buy_list = db["buy_list"]
-
+reminder_col = db["reminders"]
 
 bot = Bot(token=bot_token)
 dp = Dispatcher(storage=MemoryStorage())

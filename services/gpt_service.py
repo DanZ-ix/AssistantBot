@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from loader import yandex_gpt
 
 system_get_meta_prompt = '''
@@ -39,6 +41,44 @@ system_get_meta_prompt = '''
        "action": "delete_goods",
        "result": {JSON объект с запросом к mongodb для удаления записей в формате [{"good": "товар"}]}  
      } 
+6. **Создание напоминания**:
+   - Пользователь просит создать напоминание на какое то время
+   - Добавь в результирующий массив объект в формате ниже:
+     {
+       "action": "add_reminder",
+       "result": {"notify_text": "Текст напоминания со временем"} 
+     }           
+'''
+
+
+system_create_reminder_query = '''
+Ты — помощник для обработки напоминаний. Твоя задача — извлекать из текста напоминание и дату/время, преобразуя их в формат JSON.
+
+Инструкция:
+1. Извлеки текст напоминания, исключив из него все упоминания даты и времени. Дополни текст напоминания контекстом, чтобы напоминание было понятнее
+2. Определи абсолютную дату и время напоминания, используя текущие дату и время: {{current_datetime}}.
+3. Если указан только день, время не указано, то считай время равным 12 часам дня
+4. Верни результат в формате JSON:
+   {"reminder_text": "текст напоминания без даты/времени", "reminder_datetime": "ISO-формат"}
+
+Примеры:
+Вход: "Напомни купить хлеб завтра в 8 утра"
+Выход: {"reminder_text": "Необходимо купить хлеб", "reminder_datetime": "2023-10-26T08:00:00"}
+
+Вход: "Встреча на следующей неделе во вторник"
+Выход: {"reminder_text": "Напоминание о встрече", "reminder_datetime": "2023-10-31T12:00:00"}
+
+Вход: "Через 3 дня в 15:00 сдать отчет"
+Выход: {"reminder_text": "Необходимо сдать отчет", "reminder_datetime": "2023-10-28T15:00:00"}
+
+Вход: "15 ноября в 18:00 концерт"
+Выход: {"reminder_text": "Напоминание о концерте", "reminder_datetime": "2023-11-15T18:00:00"}
+
+Особенности:
+- Если дата/время не распознаны, верни {"error": "Не удалось распознать дату/время"}
+- Если текст напоминания пуст, верни {"error": "Текст напоминания не указан"}
+- Для относительных дат («завтра», «через час») вычисляй относительно {{current_datetime}}
+- Для дней недели («в понедельник») выбирай ближайшую будущую дату
 '''
 
 
@@ -92,6 +132,24 @@ async def get_delete_good_ids(good_list_str: str, delete_list_str: str):
         }
     ]
     gpt_result = await send_query(query)
+    return gpt_result.strip("```")
+
+
+async def create_reminder_meta(reminder_text):
+    current_datetime_str = datetime.now().strftime("%d.%m.%Y %H:%M:%S %A")
+    system_prompt = system_create_reminder_query.replace("{{current_datetime}}", current_datetime_str)
+    query = [
+        {
+            "role": "system",
+            "text": system_prompt
+        },
+        {
+            "role": "user",
+            "text": f"{reminder_text}"
+        }
+    ]
+    gpt_result = await send_query(query)
+    print(gpt_result)
     return gpt_result.strip("```")
 
 

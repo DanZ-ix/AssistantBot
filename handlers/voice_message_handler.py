@@ -14,11 +14,11 @@ from utils.funcs import check_admin
 from services.voice_recognition_service import recognize_audio
 
 
-async def process_message_text(text: str) -> str:
+async def process_message_text(text: str, user_id) -> str:
     text_meta = await get_task_meta(text)
     if text_meta:
         meta_dict_list = json.loads(text_meta)
-        return await process_gpt_results(meta_dict_list)
+        return await process_gpt_results(meta_dict_list, user_id)
 
 
 @dp.message(Command("buy_list"))
@@ -38,7 +38,7 @@ async def handle_text_message(message: types.Message):
     if message.text.startswith("/"):
         return
     try:
-        await message.answer(await process_message_text(message.text))
+        await message.answer(await process_message_text(message.text, message.from_user.id))
     except Exception as e:
         logging.error(e)
         print(e)
@@ -58,7 +58,7 @@ async def handle_voice_message(message: types.Message):
 
     try:
         audio_text = await recognize_audio(downloaded_file)
-        await message.answer(await process_message_text(audio_text))
+        await message.answer(await process_message_text(audio_text, message.from_user.id))
     except Exception as e:
         logging.error(e)
         print(e)

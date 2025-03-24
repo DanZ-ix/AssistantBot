@@ -52,7 +52,7 @@ async def get_recognition(operation_id, s3_key):
                 req = rec_status.json()
                 res_text = ""
                 for chunk in req['response']['chunks']:
-                    res_text += chunk['alternatives'][0]['text'] + "\n"
+                    res_text += chunk['alternatives'][0]['text'] + " "
 
                 s3.delete_object(Bucket=bucket_name, Key=s3_key)
                 return res_text

@@ -21,12 +21,20 @@ async def process_message_text(text: str, user_id) -> str:
         return await process_gpt_results(meta_dict_list, user_id)
 
 
+@dp.message(Command("start"))
+async def start_command(message: types.Message):
+    if not check_admin(message.from_user.id):
+        return
+
+
+
+
 @dp.message(Command("buy_list"))
 async def get_buy_list(message: types.Message):
     if not check_admin(message.from_user.id):
         return
     try:
-        await message.answer("Список покупок: " + await get_goods_list_str())
+        await message.answer("Список покупок: " + await get_goods_list_str(str(message.from_user.id)))
     except Exception as e:
         print(e)
 

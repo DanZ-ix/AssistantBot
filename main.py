@@ -8,14 +8,13 @@ from utils.scheduled import check_and_send_reminders
 
 async def set_commands(bot):
     await bot.set_my_commands([
-        types.BotCommand(command="gen_links", description="Сгенерировать ссылки на токен")
+        types.BotCommand(command="buy_list", description="Вывести список покупок")
     ])
 
 
 async def main():
     from loader import bot
-    # await set_commands(bot)
-    # await mongo_conn.connect_server()
+    await set_commands(bot)
     await asyncio.gather(dp.start_polling(bot),
                          check_and_send_reminders())
 

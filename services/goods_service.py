@@ -11,14 +11,17 @@ def divide_list_goods(good_document_list):
     return "\n* " + "\n* ".join(goods_list)
 
 
-async def get_goods_list_str():
-    good_list = await get_goods_list()
-    return "\n* " + "\n* ".join(good_list)
+async def get_goods_list_str(user_id):
+    good_list = await get_goods_list(user_id)
+    if len(good_list) == 0:
+        return "Список покупок пустой"
+    else:
+        return "\n* " + "\n* ".join(good_list)
 
 
 # Функция для получения всех элементов в виде массива строк
-async def get_goods_list():
-    doc_list = await get_goods_documents()
+async def get_goods_list(user_id):
+    doc_list = await get_goods_documents(user_id)
     goods_list = []
     for doc in doc_list:
         if "good" in doc:  # Проверяем, что поле "good" существует
@@ -26,11 +29,11 @@ async def get_goods_list():
     return goods_list
 
 
-async def get_goods_documents():
+async def get_goods_documents(user_id):
     document_list = []
 
     # Извлекаем все документы из коллекции
-    cursor = buy_list.find({})
+    cursor = buy_list.find({"user_id": user_id})
 
     # Перебираем результаты и добавляем значения в список
     async for document in cursor:

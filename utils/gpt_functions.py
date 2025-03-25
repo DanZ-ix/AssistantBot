@@ -71,15 +71,17 @@ async def add_reminder(reminder, user_id):
     return (f"Добавлена заметка на {convert_to_human_readable_with_month_name(reminder_dict['reminder_datetime'])}\n"
             f"Текст заметки: {reminder_dict['reminder_text']}")
 
-# TODO что то не работает если искать напоминания которых нет (С фильрами)
+
 async def get_reminders(reminder_prompt, user_id):
     reminders = await get_reminders_by_user_id(user_id)
-    if not reminders:
+    if len(reminders) == 0:
         return "Упоминания не найдены"
     if reminder_prompt is None:
         return format_reminders(str(reminders))
 
     object_ids = await get_reminders_gpt(reminder_prompt, str(reminders))
+    if object_ids == '[]':
+        return "Упоминания не найдены"
     filtered_reminders = await get_reminders_by_object_ids(object_ids)
     if filtered_reminders:
         return format_reminders(str(filtered_reminders))

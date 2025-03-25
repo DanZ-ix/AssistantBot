@@ -26,7 +26,7 @@ logging.getLogger('aiohttp').setLevel(logging.INFO)
 
 sdk = AsyncYCloudML(folder_id=yandex_gpt_folder_id, auth=yandex_api_token)
 yandex_gpt = sdk.models.completions('yandexgpt', model_version="rc")
-yandex_gpt = yandex_gpt.configure(temperature=0.1, max_tokens=800)
+yandex_gpt = yandex_gpt.configure(temperature=0, max_tokens=800)
 
 
 MONGO_URI = "mongodb://localhost:27017"  # Замените на ваш URI

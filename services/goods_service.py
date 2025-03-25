@@ -14,7 +14,7 @@ def divide_list_goods(good_document_list):
 async def get_goods_list_str(user_id):
     good_list = await get_goods_list(user_id)
     if len(good_list) == 0:
-        return "Список покупок пустой"
+        return "\nПусто"
     else:
         return "\n* " + "\n* ".join(good_list)
 
@@ -31,7 +31,6 @@ async def get_goods_list(user_id):
 
 async def get_goods_documents(user_id):
     document_list = []
-
     # Извлекаем все документы из коллекции
     cursor = buy_list.find({"user_id": user_id})
 

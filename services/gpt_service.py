@@ -1,4 +1,5 @@
 from datetime import datetime
+from pprint import pprint
 
 from loader import yandex_gpt
 from utils.gpt_queries import system_get_meta_prompt, system_get_delete_good_query, system_create_reminder_query, \
@@ -57,6 +58,7 @@ async def create_reminder_meta(reminder_text):
     return gpt_result.strip("```")
 
 async def get_reminders_gpt(usr_query, reminders_array):
+    current_datetime_str = datetime.now().strftime("%d.%m.%Y %H:%M:%S %A")
     query = [
         {
             "role": "system",
@@ -64,12 +66,13 @@ async def get_reminders_gpt(usr_query, reminders_array):
         },
         {
             "role": "user",
-            "text": f"Запрос пользователя: {usr_query}\nСписок напоминаний: {reminders_array}"
-        }  # TODO добавить дату
+            "text": f"Запрос пользователя: {usr_query}\nСписок напоминаний: {reminders_array},\nтекущая дата: {current_datetime_str}"
+        }
     ]
     gpt_result = await send_query(query)
     print(gpt_result)
-    return gpt_result.strip("```")
+    return gpt_result.strip("`")
+
 
 async def get_reminder_text(usr_query):
     query = [
@@ -101,9 +104,6 @@ async def get_reminder_change_query(request, reminders):
     gpt_result = await send_query(query)
     print(gpt_result)
     return gpt_result.strip("```")
-
-
-
 
 
 async def send_query(query):

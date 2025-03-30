@@ -5,7 +5,8 @@ from loader import buy_list
 from services.goods_service import get_goods_list_str, get_goods_documents, find_and_delete_objects, divide_list_goods
 from services.gpt_service import send_query, get_delete_good_ids, create_reminder_meta, get_reminders_gpt, \
     get_reminder_change_query, get_notes_gpt
-from services.notes_service import add_note, save_note_mongo, get_notes_objects, get_notes_by_objectids, get_notes_str
+from services.notes_service import add_note, save_note_mongo, get_notes_objects, get_notes_by_objectids, get_notes_str, \
+    get_object_ids_list, del_notes_by_obj_ids
 from services.reminders_service import save_reminder_to_db, get_reminders_by_user_id, format_reminders, \
     get_reminders_by_object_ids, process_reminder_operation
 from utils.funcs import convert_to_human_readable_with_month_name
@@ -15,6 +16,7 @@ async def process_gpt_results(meta_dict_list, user_id):
     gpt_functions = {
         save_note.__name__          : save_note,
         get_notes.__name__          : get_notes,
+        delete_notes.__name__       : delete_notes,
         general_question.__name__   : general_question,
         add_good_to_list.__name__   : add_good_to_list,
         get_buy_list.__name__       : get_buy_list,
@@ -39,9 +41,19 @@ async def save_note(text, user_id):
 
 async def get_notes(text, user_id):
     notes_list_full = await get_notes_objects(user_id)
-    notes_obj_ids = await get_notes_gpt(text, notes_list_full)
-    notes_list = await get_notes_by_objectids(notes_obj_ids)
+    if text is None:
+        return get_notes_str(notes_list_full)
+    notes_obj_ids_str = await get_notes_gpt(text, notes_list_full)
+    notes_obj_ids_list = get_object_ids_list(notes_obj_ids_str)
+    notes_list = await get_notes_by_objectids(notes_obj_ids_list)
     return get_notes_str(notes_list)
+
+
+async def delete_notes(text, user_id):
+    notes_list_full = await get_notes_objects(user_id)
+    notes_obj_ids_str = await get_notes_gpt(text, notes_list_full)
+    notes_obj_ids_list = get_object_ids_list(notes_obj_ids_str)
+    return await del_notes_by_obj_ids(notes_obj_ids_list)
 
 
 async def general_question(prompt, _):

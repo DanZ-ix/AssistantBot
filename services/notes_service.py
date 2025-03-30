@@ -21,23 +21,33 @@ async def get_notes_objects(user_id):
     return await notes_col.find({"user_id": user_id}).to_list(length=None)
 
 
-async def get_notes_by_objectids(objectids_str: str) -> list:
+def get_object_ids_list(objectids_str: str) -> list:
     # Регулярное выражение для извлечения ObjectId из строки
     objectid_pattern = re.compile(r"ObjectId\('([a-fA-F0-9]{24})'\)")
-
     # Извлекаем все совпадения
-    objectids = [
+    object_ids = [
         ObjectId(match.group(1))
         for match in objectid_pattern.finditer(objectids_str)
     ]
+    return object_ids
 
+
+async def get_notes_by_objectids(objectids: list) -> list:
     # Если нет ObjectId - возвращаем пустой список
     if not objectids:
         return []
-
     # Запрос к MongoDB
     cursor = notes_col.find({"_id": {"$in": objectids}})
     return await cursor.to_list(length=None)
+
+
+async def del_notes_by_obj_ids(objectids: list):
+    # Если нет ObjectId - возвращаем пустой список
+    if not objectids:
+        return "Не удалено"
+    # Запрос к MongoDB
+    await notes_col.delete_many({"_id": {"$in": objectids}})
+    return f"Удалено записей: {len(objectids)}"
 
 def get_notes_str(notes_list: list) -> str:
     if not notes_list:

@@ -1,9 +1,55 @@
 import logging
+import re
 
-from loader import github_token
+from bson import ObjectId
+
+from loader import github_token, notes_col
 from pathlib import Path
 from git import Repo
 from urllib.parse import quote
+
+
+async def save_note_mongo(note_text, user_id):
+    note = {
+        "text": note_text,
+        "user_id": user_id
+    }
+    notes_col.insert_one(note)
+
+
+async def get_notes_objects(user_id):
+    return await notes_col.find({"user_id": user_id}).to_list(length=None)
+
+
+async def get_notes_by_objectids(objectids_str: str) -> list:
+    # Регулярное выражение для извлечения ObjectId из строки
+    objectid_pattern = re.compile(r"ObjectId\('([a-fA-F0-9]{24})'\)")
+
+    # Извлекаем все совпадения
+    objectids = [
+        ObjectId(match.group(1))
+        for match in objectid_pattern.finditer(objectids_str)
+    ]
+
+    # Если нет ObjectId - возвращаем пустой список
+    if not objectids:
+        return []
+
+    # Запрос к MongoDB
+    cursor = notes_col.find({"_id": {"$in": objectids}})
+    return await cursor.to_list(length=None)
+
+def get_notes_str(notes_list: list) -> str:
+    if not notes_list:
+        return "Нет сохраненных заметок"
+
+    # Формируем нумерованный список
+    formatted = "Ваши заметки:\n" + "\n".join(
+        f"{i + 1}. {text['text']}"
+        for i, text in enumerate(notes_list)
+    )
+    return formatted
+
 
 def add_note(note_text):
     append_to_inbox_and_push(note_text, "added new note", github_token)

@@ -3,7 +3,7 @@ from pprint import pprint
 
 from loader import yandex_gpt
 from utils.gpt_queries import system_get_meta_prompt, system_get_delete_good_query, system_create_reminder_query, \
-    system_get_reminders_prompt, get_reminder_text_query, get_reminder_change_query_prompt
+    system_get_reminders_prompt, get_reminder_text_query, get_reminder_change_query_prompt, system_get_notes_prompt
 
 
 async def get_task_meta(text):
@@ -99,6 +99,22 @@ async def get_reminder_change_query(request, reminders):
             "role": "user",
             "text": f"Текст запроса: {request}, Массив напоминаний: {reminders}\n\n "
                     f"Текущая дата и время: {current_datetime_str}"
+        }
+    ]
+    gpt_result = await send_query(query)
+    print(gpt_result)
+    return gpt_result.strip("```")
+
+
+async def get_notes_gpt(request, notes):
+    query = [
+        {
+            "role": "system",
+            "text": system_get_notes_prompt
+        },
+        {
+            "role": "user",
+            "text": f"Текст запроса: {request}, Массив напоминаний: {notes}"
         }
     ]
     gpt_result = await send_query(query)

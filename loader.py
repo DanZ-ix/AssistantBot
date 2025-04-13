@@ -11,7 +11,7 @@ from configs import (bot_token, yandex_api_token, yandex_api_key_id, github_toke
                      yandex_gpt_folder_id)
 from utils.json_schemas import yandex_gpt_response_schema
 
-admin_list = ["154134326"]
+admin_list = ["154134326", "96284682", "66972213", "110428217", "442905635"]
 
 session = boto3.session.Session()
 s3 = session.client(

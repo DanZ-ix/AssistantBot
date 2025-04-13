@@ -24,7 +24,9 @@ async def process_gpt_results(meta_dict_list, user_id):
         add_reminder.__name__       : add_reminder,
         change_reminder.__name__    : change_reminder,
         get_reminders.__name__      : get_reminders,
-        unknown_request.__name__    : unknown_request
+        unknown_request.__name__    : unknown_request,
+        get_actions.__name__        : get_actions
+
     }
 
     return_str = ""
@@ -107,6 +109,10 @@ async def get_reminders(reminder_prompt, user_id):
     if filtered_reminders:
         return format_reminders(str(filtered_reminders))
     return "Упоминания не найдены"
+
+async def get_actions(action_request, user_id):
+    return action_request
+
 
 
 async def change_reminder(change_request, user_id):
